@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sleep Journey</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --card: #111827;
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+        --accent: #38bdf8;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: linear-gradient(135deg, #0b1022, #111827 45%, #0f172a);
+        color: var(--text);
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+      .card {
+        width: min(760px, 100%);
+        background: rgba(17, 24, 39, 0.92);
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        border-radius: 16px;
+        padding: 28px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 2rem;
+      }
+      p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      .ok {
+        margin-top: 16px;
+        color: var(--accent);
+        font-weight: 700;
+      }
+      code {
+        background: #0b1220;
+        padding: 2px 8px;
+        border-radius: 8px;
+        color: #bae6fd;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <h1>🌙 Sleep Journey Page is Live</h1>
+      <p>
+        GitHub Pages is now serving this repository from
+        <code>main /(root)</code>.
+      </p>
+      <p class="ok">✅ Deployment check passed.</p>
+    </main>
+  </body>
+</html>
