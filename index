@@ -1,20 +1,19 @@
-<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>重整睡眠之旅 - 智慧活力習慣達成率版</title>
-    <!-- 使用標準 link 載入 Noto Sans 字體 -->
+    <title>重整睡眠之旅 - 智慧活力鼓勵版</title>
+    <!-- 使用標準的 link 方式載入 Noto Sans 字體，避免 CSS @import 造成解析衝突 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght=400;500;700;900&display=swap">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- 鎖定 UMD 穩定版 Lucide 圖示 -->
+    <!-- 鎖定 UMD 穩定版，不使用 @latest，確保不含任何模組化 import/export 語法 -->
     <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
     
     <script>
-        // 註冊自訂 Babel 預設，強制使用 classic 模式，防範 React 18 /jsx-runtime 編譯錯誤
+        // 註冊自訂 Babel 預設，強制使用 classic 模式，徹底防範 React 18 /jsx-runtime 編譯錯誤
         window.Babel.registerPreset("custom-react", {
             presets: [
                 [window.Babel.availablePresets["react"], { runtime: "classic" }]
@@ -25,7 +24,7 @@
     <style>
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            background-color: #f8fafc;
+            background-color: #fcfcfd;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
@@ -45,7 +44,7 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         .active-scale { transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .active-scale:active { transform: scale(0.94); }
+        .active-scale:active { transform: scale(0.92); }
 
         @keyframes shine {
             from { transform: translateX(-100%) rotate(45deg); }
@@ -62,19 +61,19 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.2);
             transform: rotate(45deg);
             animation: shine 3s infinite;
         }
 
         @keyframes fadeInScale {
-            from { opacity: 0; transform: translateY(12px) scale(0.97); }
+            from { opacity: 0; transform: translateY(10px) scale(0.98); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .animate-page { animation: fadeInScale 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-page { animation: fadeInScale 0.4s ease-out forwards; }
 
         .progress-bar {
-            transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         @keyframes float {
@@ -84,14 +83,21 @@
         .float-icon { animation: float 3s ease-in-out infinite; }
 
         @keyframes popIn {
-            0% { transform: scale(0.85); opacity: 0; }
+            0% { transform: scale(0.8); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
-        .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.27) forwards; }
+        .animate-pop { animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.27) forwards; }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+        .animate-shake { animation: shake 0.5s ease-in-out infinite; }
 
         @keyframes celebrateSpark {
             0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.9; }
-            50% { transform: scale(1.12) rotate(8deg); opacity: 1; }
+            50% { transform: scale(1.15) rotate(10deg); opacity: 1; }
         }
         .animate-celebrate { animation: celebrateSpark 2.5s infinite ease-in-out; }
 
@@ -117,24 +123,29 @@
         }
 
         .overlay-blur {
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(8px);
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            background-color: transparent;
+            padding: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
-<body class="overflow-x-hidden pb-10">
+<body class="overflow-x-hidden safe-area-inset-top">
     <div id="root"></div>
 
     <script type="text/babel" data-presets="custom-react">
-        const { useState, useEffect, useMemo, useRef } = React;
+        const { useState, useEffect } = React;
 
-        // 通用 Lucide 圖示封裝元件
         const Icon = ({ name, className = "w-5 h-5", size = 24 }) => {
             return <i data-lucide={name} className={className} style={{ width: size, height: size }}></i>;
         };
 
         // 療癒手繪風 - 小睡雲 (Sleeping Cloud)
-        const SleepingCloudSVG = ({ className = "w-28 h-28 float-icon" }) => (
+        const SleepingCloudSVG = ({ className = "w-32 h-32 float-icon" }) => (
             <svg viewBox="0 0 100 100" className={className}>
                 <path d="M25,65 a15,15 0 0,1 0,-25 a18,18 0 0,1 36,-5 a16,16 0 0,1 22,10 a15,15 0 0,1 -4,28 z" fill="#e0e7ff" stroke="#6366f1" strokeWidth="3.5" strokeLinejoin="round" />
                 <path d="M36,54 q3,4 6,0" fill="none" stroke="#4338ca" strokeWidth="3" strokeLinecap="round" />
@@ -148,7 +159,7 @@
         );
 
         // 活力手繪風 - 能量小星星 (Smiling Star)
-        const GlowingStarSVG = ({ className = "w-28 h-28 animate-celebrate" }) => (
+        const GlowingStarSVG = ({ className = "w-32 h-32 animate-celebrate" }) => (
             <svg viewBox="0 0 100 100" className={className}>
                 <polygon points="50,6 63,35 95,35 69,55 79,88 50,68 21,88 31,55 5,35 37,35" fill="#fef08a" stroke="#eab308" strokeWidth="3.5" strokeLinejoin="round" />
                 <circle cx="39" cy="46" r="3" fill="#854d0e" />
@@ -160,8 +171,8 @@
             </svg>
         );
 
-        // 立體大獎盃 SVG
-        const TrophySVG = ({ className = "w-20 h-20" }) => (
+        // 專屬精緻立體大獎盃 SVG (免去外部圖示庫異步加載衝突，確保 100% 渲染成功)
+        const TrophySVG = ({ className = "w-24 h-24" }) => (
             <svg viewBox="0 0 100 100" className={className}>
                 <ellipse cx="50" cy="85" rx="26" ry="5" fill="#e2e8f0" />
                 <path d="M30,80 L70,80 L65,85 L35,85 Z" fill="#64748b" />
@@ -170,8 +181,13 @@
                 <path d="M46,50 L54,50 L54,68 L46,68 Z" fill="#d97706" />
                 <path d="M25,23 C25,48 40,52 50,52 C60,52 75,48 75,23 L25,23 Z" fill="#f59e0b" stroke="#d97706" strokeWidth="3" strokeLinejoin="round" />
                 <path d="M32,23 C32,43 42,46 50,46 C58,46 68,43 68,23 L32,23 Z" fill="#fbbf24" />
+                <path d="M50,15 L50,52" stroke="#f59e0b" strokeWidth="1.5" opacity="0.3" />
                 <path d="M25,28 C12,28 12,43 25,43" fill="none" stroke="#d97706" strokeWidth="3.5" strokeLinecap="round" />
+                <path d="M25,28 C15,28 15,43 25,43" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" />
                 <path d="M75,28 C88,28 88,43 75,43" fill="none" stroke="#d97706" strokeWidth="3.5" strokeLinecap="round" />
+                <path d="M75,28 C85,28 85,43 75,43" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" />
+                <circle cx="21" cy="18" r="2" fill="#fbbf24" />
+                <circle cx="79" cy="18" r="2" fill="#fbbf24" />
                 <polygon points="50,28 53,34 60,35 55,40 56,46 50,43 44,46 45,40 40,35 47,34" fill="#ffffff" />
             </svg>
         );
@@ -198,13 +214,13 @@
                 title: '日間活動習慣',
                 icon: 'sun',
                 color: 'amber',
-                bgClass: 'bg-amber-50/60',
-                borderClass: 'border-amber-200',
+                bgClass: 'bg-amber-50/50',
+                borderClass: 'border-amber-100',
                 items: [
                     { name: '固定時間起床', hint: '即使假日也建議維持相同作息' },
                     { name: '曬日光 (出外曬太陽30-60 分鐘)', hint: '光照有助於調節生理時鐘' },
                     { name: '出外做運動 (45-60 分鐘，如：慢跑、快走)', hint: '適度運動能幫助晚間深層睡眠' },
-                    { name: '避免日間躺在睡床上', hint: '床應僅用於睡眠，日間活動應在沙發或桌椅進行' }
+                    { name: '避免日間躺在睡床上', hint: '床應僅用於睡眠，日間活動應在沙發 or 桌椅進行' }
                 ]
             },
             {
@@ -227,8 +243,8 @@
                 title: '睡前放鬆儀式',
                 icon: 'moon',
                 color: 'indigo',
-                bgClass: 'bg-indigo-50/60',
-                borderClass: 'border-indigo-200',
+                bgClass: 'bg-indigo-50/50',
+                borderClass: 'border-indigo-100',
                 items: [
                     { name: '聽放鬆音樂 (30-45分鐘)', hint: '讓節奏慢下來，準備睡眠訊號' },
                     { name: '呼吸練習 (10-15分鐘)', hint: '專注於深緩呼吸，放鬆神經系統' },
@@ -241,84 +257,49 @@
         const DURATION_THEMES = {
             7: { 
                 name: 'emerald', 
-                cardDone: 'bg-emerald-50/70 border-emerald-200 text-slate-700', 
-                btnDone: 'bg-emerald-500 border-emerald-500 text-white shadow-md shadow-emerald-100',
-                progressFill: 'bg-emerald-400',
-                barFill: 'bg-emerald-500',
-                textAccent: 'text-emerald-600'
+                bg: 'bg-emerald-50/50', 
+                border: 'border-emerald-100', 
+                fill: 'bg-emerald-500', 
+                text: 'text-emerald-900',
+                gradient: 'linear-gradient(90deg, #10b981, #34d399, #6ee7b7)'
             },
             14: { 
                 name: 'amber', 
-                cardDone: 'bg-amber-50/70 border-amber-200 text-slate-700', 
-                btnDone: 'bg-amber-500 border-amber-500 text-white shadow-md shadow-amber-100',
-                progressFill: 'bg-amber-400',
-                barFill: 'bg-amber-500',
-                textAccent: 'text-amber-600'
+                bg: 'bg-amber-50/50', 
+                border: 'border-amber-100', 
+                fill: 'bg-amber-500', 
+                text: 'text-amber-900',
+                gradient: 'linear-gradient(90deg, #f59e0b, #fbbf24, #fcd34d)'
             },
             21: { 
-                name: 'purple', 
-                cardDone: 'bg-purple-50/70 border-purple-200 text-slate-700', 
-                btnDone: 'bg-purple-600 border-purple-600 text-white shadow-md shadow-purple-100',
-                progressFill: 'bg-purple-400',
-                barFill: 'bg-purple-600',
-                textAccent: 'text-purple-600'
+                name: 'rose', 
+                bg: 'bg-rose-50/50', 
+                border: 'border-rose-100', 
+                fill: 'bg-rose-500', 
+                text: 'text-rose-900',
+                gradient: 'linear-gradient(90deg, #e11d48, #fb7185, #fda4af)'
             }
         };
 
+        const ENCOURAGING_QUOTES = [
+            "每一點微小的改變，都在為今晚的優質睡眠奠定基石！",
+            "做得太棒了！你的身體與大腦正在感謝你的溫柔呵護。",
+            "規律與放鬆，是給予生理時鐘最完美的自然禮物！",
+            "太精彩了，健康生活是一場累積，今天也完美加分！",
+            "放慢腳步，保持今天的優秀節奏，祝你今晚好夢甜甜。"
+        ];
+
+        // 頁尾標籤 - 低調且精緻地標註製作單位：QEH OT
         const Footer = () => (
-            <div className="w-full flex items-center justify-center gap-1.5 pt-2 pb-0.5 text-slate-400 text-xs font-bold tracking-widest">
-                <Icon name="heart" size={14} className="text-red-400 fill-red-400/30" />
+            <div className="w-full flex items-center justify-center gap-1.5 py-6 mt-2 text-slate-300 text-[11px] font-bold tracking-widest">
+                <Icon name="heart" size={12} className="text-red-300/60 fill-red-300/20" />
                 <span>QEH OT</span>
             </div>
         );
 
-        // 日期格式化為 DD/MM/YYYY (日/月/年)
-        const formatDateDDMMYYYY = (isoDateStr) => {
-            if (!isoDateStr) return '';
-            const parts = isoDateStr.split('-');
-            if (parts.length !== 3) return isoDateStr;
-            return `${parts[2]}/${parts[1]}/${parts[0]}`;
-        };
-
-        // 計算指定年月之月曆天數陣列 (確保跨平台/跨瀏覽器/iFrame皆能穩定彈出選擇)
-        const getCalendarDays = (year, month) => {
-            const firstDay = new Date(year, month, 1).getDay(); // 0 = 星期日
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const daysInPrevMonth = new Date(year, month, 0).getDate();
-
-            const days = [];
-
-            // 上個月補齊天數
-            for (let i = firstDay - 1; i >= 0; i--) {
-                const d = daysInPrevMonth - i;
-                const prevMonth = month === 0 ? 11 : month - 1;
-                const prevYear = month === 0 ? year - 1 : year;
-                const dateStr = `${prevYear}-${String(prevMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                days.push({ day: d, isCurrentMonth: false, dateStr });
-            }
-
-            // 當月天數
-            for (let d = 1; d <= daysInMonth; d++) {
-                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                days.push({ day: d, isCurrentMonth: true, dateStr });
-            }
-
-            // 下個月補齊至 35 或 42 格
-            const totalCells = days.length > 35 ? 42 : 35;
-            const remaining = totalCells - days.length;
-            for (let d = 1; d <= remaining; d++) {
-                const nextMonth = month === 11 ? 0 : month + 1;
-                const nextYear = month === 11 ? year + 1 : year;
-                const dateStr = `${nextYear}-${String(nextMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                days.push({ day: d, isCurrentMonth: false, dateStr });
-            }
-
-            return days;
-        };
-
         function App() {
-            const [appMode, setAppMode] = useState('setup'); // 'setup' | 'tracking'
-            const [setupStep, setSetupStep] = useState(1);
+            const [appMode, setAppMode] = useState('setup');
+            const [setupStep, setSetupStep] = useState(1); 
             const [planDuration, setPlanDuration] = useState(7);
             const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
             const [selectedTasks, setSelectedTasks] = useState(new Set());
@@ -326,40 +307,31 @@
             const [taskAlarms, setTaskAlarms] = useState({});
             const [trackingStartedAt, setTrackingStartedAt] = useState(null);
 
-            // 自訂月曆彈窗 State
-            const [showDatePickerModal, setShowDatePickerModal] = useState(false);
-            const initialDate = new Date(startDate || Date.now());
-            const [calYear, setCalYear] = useState(initialDate.getFullYear());
-            const [calMonth, setCalMonth] = useState(initialDate.getMonth());
-
             const [showSuccessToast, setShowSuccessToast] = useState(false);
             const [activeRitual, setActiveRitual] = useState(null);
             const [alarmSettingTask, setAlarmSettingTask] = useState(null);
             const [triggeredAlarm, setTriggeredAlarm] = useState(null);
             const [showResetConfirm, setShowResetConfirm] = useState(false);
-            const [showStatsModal, setShowStatsModal] = useState(false);
             const [notificationPermission, setNotificationPermission] = useState('default');
+            const [missedTasks, setMissedTasks] = useState([]);
+            const [isIframe, setIsIframe] = useState(false);
 
             const [showSingleEncouragement, setShowSingleEncouragement] = useState(false);
-            const [mascotType, setMascotType] = useState('cloud');
+            const [currentQuote, setCurrentQuote] = useState("");
+            const [mascotType, setMascotType] = useState('cloud'); 
             const [confettiArray, setConfettiArray] = useState([]);
 
-            // 讀取 localStorage
+            // 載入 localStorage
             useEffect(() => {
+                setIsIframe(window.self !== window.top);
+
                 try {
-                    const saved = localStorage.getItem('SleepApp_V6_CompletionRate');
+                    const saved = localStorage.getItem('SleepApp_V5_Encouraged');
                     if (saved) {
                         const data = JSON.parse(saved);
                         if (data.appMode) setAppMode(data.appMode);
                         if (data.planDuration) setPlanDuration(data.planDuration);
-                        if (data.startDate) {
-                            setStartDate(data.startDate);
-                            const d = new Date(data.startDate);
-                            if (!isNaN(d.getTime())) {
-                                setCalYear(d.getFullYear());
-                                setCalMonth(d.getMonth());
-                            }
-                        }
+                        if (data.startDate) setStartDate(data.startDate);
                         if (data.selectedTasks) setSelectedTasks(new Set(data.selectedTasks));
                         if (data.dailyLogs) setDailyLogs(data.dailyLogs);
                         if (data.taskAlarms) setTaskAlarms(data.taskAlarms);
@@ -375,7 +347,7 @@
                 }
             }, []);
 
-            // Lucide 圖示 DOM 轉換重繪
+            // 在每次狀態變更與渲染完畢後，執行 Lucide 的 DOM 轉換重繪
             useEffect(() => {
                 if (window.lucide) window.lucide.createIcons();
             });
@@ -383,91 +355,32 @@
             // 儲存至 localStorage
             useEffect(() => {
                 try {
-                    localStorage.setItem('SleepApp_V6_CompletionRate', JSON.stringify({
+                    localStorage.setItem('SleepApp_V5_Encouraged', JSON.stringify({
                         appMode, planDuration, startDate, dailyLogs, taskAlarms, trackingStartedAt,
                         selectedTasks: Array.from(selectedTasks)
                     }));
                 } catch (e) {}
-            }, [appMode, planDuration, startDate, selectedTasks, dailyLogs, taskAlarms, trackingStartedAt]);
+            }, [appMode, planDuration, startDate, selectedTasks, dailyLogs, activeRitual, taskAlarms, alarmSettingTask, triggeredAlarm, showSingleEncouragement, showSuccessToast, trackingStartedAt]);
 
-            // 核心邏輯：計算習慣達成率數據
-            const stats = useMemo(() => {
-                const today = new Date().toISOString().split('T')[0];
-                const sDate = new Date(startDate);
-                sDate.setHours(0,0,0,0);
-                const cDate = new Date(today);
-                cDate.setHours(0,0,0,0);
-                
-                // 計算計畫啟動天數 (至少第 1 天，上限為計畫總天數)
-                const diffTime = cDate - sDate;
-                const rawDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                const elapsedDays = Math.min(planDuration, Math.max(1, rawDays));
-
-                const taskList = Array.from(selectedTasks);
-                const totalPossibleCompletions = elapsedDays * taskList.length;
-
-                let totalActualCompletions = 0;
-                const perTaskStats = {};
-
-                taskList.forEach(task => {
-                    perTaskStats[task] = 0;
-                });
-
-                // 統計計畫開始至今的每一天完成情況
-                for (let i = 0; i < elapsedDays; i++) {
-                    const tempDate = new Date(sDate);
-                    tempDate.setDate(tempDate.getDate() + i);
-                    const dateStr = tempDate.toISOString().split('T')[0];
-                    const dayLog = dailyLogs[dateStr] || [];
-
-                    taskList.forEach(task => {
-                        if (dayLog.includes(task)) {
-                            totalActualCompletions += 1;
-                            perTaskStats[task] = (perTaskStats[task] || 0) + 1;
-                        }
-                    });
+            // 定時標題快閃提醒
+            useEffect(() => {
+                let interval;
+                if (triggeredAlarm) {
+                    let flag = true;
+                    interval = setInterval(() => {
+                        document.title = flag ? "⏰【任務提醒】" : "重整睡眠之旅";
+                        flag = !flag;
+                    }, 1000);
+                } else {
+                    document.title = "重整睡眠之旅";
                 }
-
-                // 整體習慣達成率
-                const overallRate = totalPossibleCompletions > 0 
-                    ? Math.round((totalActualCompletions / totalPossibleCompletions) * 100) 
-                    : 0;
-
-                // 今日習慣達成率
-                const todayLog = dailyLogs[today] || [];
-                const todayCompletedCount = taskList.filter(t => todayLog.includes(t)).length;
-                const todayRate = taskList.length > 0 
-                    ? Math.round((todayCompletedCount / taskList.length) * 100) 
-                    : 0;
-
-                // 計算連續堅持天數 (Streak)
-                let streak = 0;
-                for (let i = rawDays - 1; i >= 0; i--) {
-                    const tempDate = new Date(sDate);
-                    tempDate.setDate(tempDate.getDate() + i);
-                    const dateStr = tempDate.toISOString().split('T')[0];
-                    const dayLog = dailyLogs[dateStr] || [];
-                    if (dayLog.length > 0) {
-                        streak += 1;
-                    } else if (i < rawDays - 1) { // 如果今天還沒填算0，但若昨天斷掉就停止
-                        break;
-                    }
-                }
-
-                return {
-                    elapsedDays,
-                    totalPossibleCompletions,
-                    totalActualCompletions,
-                    overallRate,
-                    todayRate,
-                    todayCompletedCount,
-                    totalSelectedCount: taskList.length,
-                    perTaskStats,
-                    streak
+                return () => {
+                    clearInterval(interval);
+                    document.title = "重整睡眠之旅";
                 };
-            }, [startDate, planDuration, selectedTasks, dailyLogs]);
+            }, [triggeredAlarm]);
 
-            // 系統通知與鬧鐘邏輯
+            // 系統級通知觸發
             const triggerSystemNotification = (taskName) => {
                 if ('Notification' in window && Notification.permission === 'granted') {
                     try {
@@ -478,23 +391,32 @@
                         });
 
                         notify.onclick = () => {
-                            window.focus();
+                            try {
+                                window.focus();
+                            } catch (err) {
+                                console.warn("無法自動聚焦視窗：", err);
+                            }
                             setAppMode('tracking');
                             setTriggeredAlarm(null);
                             const foundTask = CATEGORIES.flatMap(c => c.items).find(i => i.name === taskName);
-                            if (foundTask) setActiveRitual(foundTask);
+                            if (foundTask) {
+                                setActiveRitual(foundTask);
+                            }
                             notify.close();
                         };
-                    } catch (err) { console.warn(err); }
+                    } catch (err) {
+                        console.warn("通知發送被阻擋：", err);
+                    }
                 }
             };
 
+            // 鬧鐘定時檢測機制
             useEffect(() => {
                 const timer = setInterval(() => {
                     if (appMode !== 'tracking') return;
                     const now = new Date();
                     const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-                    const todayStr = now.toISOString().split('T')[0];
+                    const todayStr = new Date().toISOString().split('T')[0];
                     const todayDone = dailyLogs[todayStr] || [];
 
                     Object.entries(taskAlarms).forEach(([task, time]) => {
@@ -507,19 +429,90 @@
                 return () => clearInterval(timer);
             }, [taskAlarms, dailyLogs, appMode, triggeredAlarm]);
 
+            // 智慧離線漏接鬧鐘偵測 (起跑線過濾機制)
+            useEffect(() => {
+                const checkMissedAlarms = () => {
+                    if (appMode !== 'tracking') return;
+                    const now = new Date();
+                    const currentHour = now.getHours();
+                    const currentMinute = now.getMinutes();
+                    const todayStr = now.toISOString().split('T')[0];
+                    const todayDone = dailyLogs[todayStr] || [];
+
+                    const missed = [];
+                    Object.entries(taskAlarms).forEach(([task, time]) => {
+                        if (selectedTasks.has(task) && !todayDone.includes(task)) {
+                            const [alarmH, alarmM] = time.split(':').map(Number);
+                            
+                            const alarmDate = new Date();
+                            alarmDate.setHours(alarmH, alarmM, 0, 0);
+
+                            if (alarmH < currentHour || (alarmH === currentHour && alarmM < currentMinute)) {
+                                if (trackingStartedAt) {
+                                    const startedDate = new Date(trackingStartedAt);
+                                    if (alarmDate.getTime() < startedDate.getTime()) {
+                                        return; 
+                                    }
+                                }
+                                missed.push({ name: task, time });
+                            }
+                        }
+                    });
+
+                    if (missed.length > 0) {
+                        setMissedTasks(missed);
+                    } else {
+                        setMissedTasks([]);
+                    }
+                };
+
+                checkMissedAlarms();
+                
+                const handleVisibilityChange = () => {
+                    if (document.visibilityState === 'visible') {
+                        checkMissedAlarms();
+                    }
+                };
+
+                document.addEventListener('visibilitychange', handleVisibilityChange);
+                return () => {
+                    document.removeEventListener('visibilitychange', handleVisibilityChange);
+                };
+            }, [taskAlarms, dailyLogs, appMode, selectedTasks, trackingStartedAt]);
+
+            const requestPermission = async () => {
+                if ('Notification' in window) {
+                    const result = await Notification.requestPermission();
+                    setNotificationPermission(result);
+                }
+            };
+
+            const runFiveSecondsTest = (taskName) => {
+                setAlarmSettingTask(null);
+                requestPermission();
+                setTimeout(() => {
+                    setTriggeredAlarm(taskName);
+                    triggerSystemNotification(taskName);
+                }, 5000);
+            };
+
+            // 慶祝紙屑向上噴射擴散演算法
             const generateConfetti = () => {
                 const colors = ['#f59e0b', '#10b981', '#3b82f6', '#ec4899', '#8b5cf6', '#34d399', '#fcd34d'];
                 const items = [];
-                for (let i = 0; i < 35; i++) {
-                    const angle = (Math.random() * 140 + 20) * (Math.PI / 180);
-                    const distance = Math.random() * 130 + 50;
+                for (let i = 0; i < 40; i++) {
+                    const angle = (Math.random() * 140 + 20) * (Math.PI / 180); 
+                    const distance = Math.random() * 140 + 50; 
                     const tx = `${Math.cos(angle) * distance}px`;
-                    const ty = `-${Math.sin(angle) * distance}px`;
+                    const ty = `-${Math.sin(angle) * distance}px`; 
                     const rot = `${Math.random() * 360 + 360}deg`;
 
                     items.push({
-                        id: i, tx, ty, rot,
-                        delay: `${Math.random() * 0.3}s`,
+                        id: i,
+                        tx,
+                        ty,
+                        rot,
+                        delay: `${Math.random() * 0.3}s`, 
                         color: colors[Math.floor(Math.random() * colors.length)],
                         size: `${Math.random() * 8 + 8}px`,
                         shape: Math.random() > 0.5 ? 'rounded-full' : 'rotate-45'
@@ -529,6 +522,15 @@
             };
 
             const todayStr = new Date().toISOString().split('T')[0];
+            const getDayDiff = (start, current) => {
+                const s = new Date(start); s.setHours(0,0,0,0);
+                const c = new Date(current); c.setHours(0,0,0,0);
+                return Math.floor((c - s) / (86400000)) + 1;
+            };
+
+            const currentDayNum = getDayDiff(startDate, todayStr);
+            const progressPercent = Math.min(100, Math.max(0, ((currentDayNum - 1) / planDuration) * 100));
+            const currentTheme = DURATION_THEMES[planDuration] || DURATION_THEMES[7];
 
             const handleStartTracking = () => {
                 const updatedAlarms = { ...taskAlarms };
@@ -538,9 +540,9 @@
                     }
                 });
                 setTaskAlarms(updatedAlarms);
-                setTrackingStartedAt(Date.now());
+                setTrackingStartedAt(Date.now()); 
                 setAppMode('tracking');
-                if ('Notification' in window) Notification.requestPermission();
+                requestPermission();
             };
 
             const toggleTask = (taskName) => {
@@ -561,11 +563,14 @@
                 const dayLog = dailyLogs[todayStr] || [];
                 let newLog = [...dayLog, taskName];
                 
+                const randomQuote = ENCOURAGING_QUOTES[Math.floor(Math.random() * ENCOURAGING_QUOTES.length)];
+                setCurrentQuote(randomQuote);
                 setMascotType(Math.random() > 0.5 ? 'cloud' : 'star');
 
                 setDailyLogs({ ...dailyLogs, [todayStr]: newLog });
                 setActiveRitual(null);
                 setTriggeredAlarm(null);
+                setMissedTasks(prev => prev.filter(t => t.name !== taskName));
 
                 if (newLog.length === selectedTasks.size) {
                     generateConfetti();
@@ -575,50 +580,60 @@
                 }
             };
 
+            const handleOneClickCancelAlarm = (taskName) => {
+                const nextAlarms = { ...taskAlarms };
+                delete nextAlarms[taskName];
+                setTaskAlarms(nextAlarms);
+            };
+
             const executeReset = () => {
                 setAppMode('setup');
                 setSetupStep(1);
                 setDailyLogs({});
                 setSelectedTasks(new Set());
                 setTaskAlarms({});
-                setTrackingStartedAt(null);
-                const tDate = new Date().toISOString().split('T')[0];
-                setStartDate(tDate);
-                const d = new Date();
-                setCalYear(d.getFullYear());
-                setCalMonth(d.getMonth());
+                setTrackingStartedAt(null); 
+                setStartDate(new Date().toISOString().split('T')[0]);
                 setShowResetConfirm(false);
+                setMissedTasks([]);
             };
 
             const SetupView = () => (
-                <div className="animate-page flex flex-col min-h-screen max-w-md mx-auto p-5">
-                    <header className="mt-8 mb-6 text-center">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-bold mb-2">
-                            <Icon name="sparkles" size={14} /> 建立你的優質睡眠習慣
-                        </div>
-                        <h1 className="text-4xl font-black tracking-tight text-slate-800">重整睡眠之旅</h1>
-                        <p className="font-bold mt-1 text-base text-slate-500">睡眠管理行動計劃</p>
+                <div className="animate-page flex flex-col min-h-screen p-6">
+                    <header className="mt-12 mb-8 text-center">
+                        <h1 className="text-4xl font-black tracking-tight soft-title-shadow">重整睡眠之旅</h1>
+                        <p className="font-bold mt-3 text-xl soft-subtitle-shadow">睡眠管理行動計劃</p>
                     </header>
 
                     {setupStep === 1 ? (
-                        <div className="space-y-5 flex-1 pb-36">
-                            <div className="text-center">
-                                <span className="text-xs font-extrabold text-indigo-600 bg-indigo-100/70 px-4 py-1.5 rounded-full">
-                                    步驟 1：選擇挑戰習慣 (可多選)
-                                </span>
+                        <div className="animate-page space-y-6 flex-1 overflow-y-auto no-scrollbar pb-8 px-1">
+                            <div className="flex items-center justify-center mb-4">
+                                <p className="text-sm font-bold text-slate-800 tracking-tight bg-slate-100 px-5 py-2 rounded-full border border-slate-200">
+                                    步驟 1：選擇你想挑戰的習慣
+                                </p>
                             </div>
                             
                             {CATEGORIES.map(cat => (
-                                <section key={cat.id} className={`${cat.bgClass} ${cat.borderClass} border-2 rounded-3xl p-4 space-y-3`}>
-                                    <div className="flex items-center gap-2">
-                                        <div className={`p-2 rounded-xl bg-white shadow-sm text-${cat.color}-600`}>
-                                            <Icon name={cat.icon} size={18} />
+                                <section key={cat.id} className={`${cat.bgClass} ${cat.borderClass} border-2 rounded-[2.5rem] p-5 space-y-4`}>
+                                    <div className="flex items-center gap-2 px-1">
+                                        <div className={`p-2 rounded-xl bg-${cat.color}-100 text-${cat.color}-600`}>
+                                            <Icon name={cat.icon} size={20} />
                                         </div>
-                                        <h3 className="text-base font-bold text-slate-800">{cat.title}</h3>
+                                        <h3 className="text-lg font-bold text-slate-800">{cat.title}</h3>
                                     </div>
-                                    <div className="space-y-2">
+                                    <div className="grid grid-cols-1 gap-3">
                                         {cat.items.map(item => {
                                             const isSelected = selectedTasks.has(item.name);
+                                            const activeColors = 
+                                                cat.id === 'daytime' ? 'border-amber-500 bg-white shadow-md shadow-amber-100' :
+                                                cat.id === 'hygiene' ? 'border-cyan-500 bg-white shadow-md shadow-cyan-100' :
+                                                'border-indigo-500 bg-white shadow-md shadow-indigo-100';
+                                            
+                                            const checkColors = 
+                                                cat.id === 'daytime' ? 'bg-amber-500 border-amber-500 text-white' :
+                                                cat.id === 'hygiene' ? 'bg-cyan-500 border-cyan-500 text-white' :
+                                                'bg-indigo-600 border-indigo-600 text-white';
+
                                             return (
                                                 <div 
                                                     key={item.name}
@@ -627,18 +642,15 @@
                                                         if(isSelected) next.delete(item.name); else next.add(item.name);
                                                         setSelectedTasks(next);
                                                     }}
-                                                    className={`p-3.5 rounded-2xl border-2 transition-all active-scale cursor-pointer flex items-center justify-between ${
-                                                        isSelected ? 'border-indigo-600 bg-white shadow-md' : 'border-slate-200/60 bg-white/60 hover:bg-white'
+                                                    className={`p-4 rounded-2xl border-2 transition-all active-scale cursor-pointer flex items-center justify-between ${
+                                                        isSelected ? activeColors : 'border-white/60 bg-white/40 shadow-sm hover:border-slate-200'
                                                     }`}
                                                 >
-                                                    <div className="flex-1 pr-2">
-                                                        <p className="text-sm font-bold text-slate-800">{item.name}</p>
-                                                        <p className="text-[11px] text-slate-500 mt-0.5">{item.hint}</p>
-                                                    </div>
-                                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
-                                                        isSelected ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-300'
+                                                    <span className={`font-bold text-sm leading-snug pr-2 flex-1 ${isSelected ? 'text-slate-900' : 'text-slate-500'}`}>{item.name}</span>
+                                                    <div className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center border-2 transition-all ${
+                                                        isSelected ? `${checkColors} scale-110 shadow-lg` : 'border-slate-200 bg-white/80'
                                                     }`}>
-                                                        {isSelected && <Icon name="check" size={14} />}
+                                                        {isSelected ? <Icon name="check" size={16} /> : <Icon name="plus" size={16} className="text-slate-300" />}
                                                     </div>
                                                 </div>
                                             );
@@ -647,611 +659,495 @@
                                 </section>
                             ))}
 
-                            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-slate-100 flex flex-col items-center justify-center max-w-md mx-auto z-40">
-                                <button
-                                    disabled={selectedTasks.size === 0}
-                                    onClick={() => setSetupStep(2)}
-                                    className={`w-full py-3.5 rounded-2xl font-black text-white shadow-lg transition-all active-scale flex items-center justify-center gap-2 ${
-                                        selectedTasks.size > 0 ? 'bg-indigo-600 shadow-indigo-200 hover:bg-indigo-700' : 'bg-slate-300 cursor-not-allowed'
-                                    }`}
-                                >
-                                    下一步：設定天數與開始日 ({selectedTasks.size})
-                                    <Icon name="arrow-right" size={18} />
+                            {selectedTasks.size > 0 && (
+                                <button onClick={() => setSetupStep(2)} className="w-full mt-4 bg-slate-900 text-white font-black py-5 rounded-3xl shadow-xl active-scale flex items-center justify-center gap-3 text-lg">
+                                    選好了，下一步 <Icon name="chevron-right" size={24} />
                                 </button>
-                                <Footer />
-                            </div>
+                            )}
+                            <Footer />
                         </div>
                     ) : (
-                        <div className="space-y-6 flex-1 pb-36">
-                            <div className="text-center">
-                                <span className="text-xs font-extrabold text-indigo-600 bg-indigo-100/70 px-4 py-1.5 rounded-full">
-                                    步驟 2：選擇挑戰週期
-                                </span>
+                        <div className="animate-page space-y-6 flex-1 overflow-y-auto no-scrollbar pb-8 px-1">
+                            <div className="flex items-center justify-center mb-4">
+                                <p className="text-sm font-bold text-slate-800 tracking-tight bg-slate-100 px-5 py-2 rounded-full border border-slate-200">
+                                    步驟 2：設定挑戰詳情
+                                </p>
                             </div>
 
-                            <div className="bg-white rounded-3xl p-5 border-2 border-slate-100 shadow-sm space-y-4">
-                                <label className="block text-sm font-bold text-slate-700">挑戰總天數</label>
-                                <div className="grid grid-cols-3 gap-3">
-                                    {[
-                                        { 
-                                            days: 7, 
-                                            title: '7', 
-                                            subtitle: '7天挑戰', 
-                                            active: 'bg-emerald-500 border-emerald-500 text-white shadow-md shadow-emerald-100 ring-2 ring-emerald-300', 
-                                            inactive: 'bg-emerald-50/70 border-emerald-200 text-emerald-800 hover:bg-emerald-100/80' 
-                                        },
-                                        { 
-                                            days: 14, 
-                                            title: '14', 
-                                            subtitle: '14天挑戰', 
-                                            active: 'bg-amber-500 border-amber-500 text-white shadow-md shadow-amber-100 ring-2 ring-amber-300', 
-                                            inactive: 'bg-amber-50/70 border-amber-200 text-amber-800 hover:bg-amber-100/80' 
-                                        },
-                                        { 
-                                            days: 21, 
-                                            title: '21', 
-                                            subtitle: '21天挑戰', 
-                                            active: 'bg-purple-600 border-purple-600 text-white shadow-md shadow-purple-100 ring-2 ring-purple-300', 
-                                            inactive: 'bg-purple-50/70 border-purple-200 text-purple-800 hover:bg-purple-100/80' 
-                                        }
-                                    ].map(opt => {
-                                        const isSelected = planDuration === opt.days;
-                                        return (
-                                            <button
-                                                key={opt.days}
-                                                onClick={() => setPlanDuration(opt.days)}
-                                                className={`py-4 rounded-2xl border-2 font-black transition-all active-scale flex flex-col items-center justify-center ${
-                                                    isSelected ? opt.active : opt.inactive
-                                                }`}
-                                            >
-                                                <span className="text-2xl">{opt.days}</span>
-                                                <span className="text-xs font-semibold">{opt.subtitle}</span>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            {}
-                            <div className="bg-white rounded-3xl p-5 border-2 border-slate-100 shadow-sm space-y-3">
-                                <div className="flex items-center justify-between">
-                                    <label className="block text-sm font-bold text-slate-700">開始日期</label>
-                                </div>
-                                
-                                <div 
-                                    onClick={() => {
-                                        const d = new Date(startDate || Date.now());
-                                        if (!isNaN(d.getTime())) {
-                                            setCalYear(d.getFullYear());
-                                            setCalMonth(d.getMonth());
-                                        }
-                                        setShowDatePickerModal(true);
-                                    }}
-                                    className="relative cursor-pointer group rounded-2xl border-2 border-indigo-100 hover:border-indigo-400 bg-indigo-50/30 p-3.5 flex items-center justify-between transition-all active-scale shadow-sm"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2.5 rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-200">
-                                            <Icon name="calendar-days" size={20} />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-semibold text-slate-400">目前選擇日期 (日/月/年)</p>
-                                            <p className="text-lg font-black text-slate-800 tracking-wide">
-                                                {formatDateDDMMYYYY(startDate)}
-                                            </p>
-                                        </div>
+                            <div className="bg-indigo-50/50 border-2 border-indigo-100 rounded-[2.5rem] p-6 space-y-6">
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center px-1">
+                                        <h3 className="text-lg font-bold text-slate-800">已選習慣</h3>
+                                        <button onClick={() => setSetupStep(1)} className="text-sm font-bold text-indigo-600 bg-indigo-100/50 px-3 py-1.5 rounded-full flex items-center gap-1 active-scale">
+                                            <Icon name="edit-3" size={14} /> 更改習慣選擇
+                                        </button>
                                     </div>
-
-                                    <div className="px-3.5 py-2 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-md shadow-indigo-100 hover:bg-indigo-700 transition-colors flex items-center gap-1.5">
-                                        <Icon name="calendar-plus" size={15} />
-                                        點擊開啟日曆
+                                    <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto no-scrollbar">
+                                        {Array.from(selectedTasks).map(task => (
+                                            <span key={task} className="bg-white border border-indigo-100 px-3 py-1.5 rounded-xl text-[10px] font-bold text-slate-600 shadow-sm">
+                                                {task}
+                                            </span>
+                                        ))}
                                     </div>
                                 </div>
-                                <p className="text-[11px] text-slate-400 font-medium text-center pt-0.5">點擊上方區塊即可輕鬆彈出日曆面板進行日期選擇</p>
-                            </div>
 
-                            <div className="bg-indigo-50/70 rounded-3xl p-5 border-2 border-indigo-100 space-y-2">
-                                <h4 className="text-sm font-bold text-indigo-900 flex items-center gap-2">
-                                    <Icon name="check-circle-2" size={16} className="text-indigo-600" /> 已選擇的習慣項目 ({selectedTasks.size})
-                                </h4>
-                                <ul className="text-xs font-medium text-indigo-700 space-y-1 list-disc list-inside">
-                                    {Array.from(selectedTasks).map(t => (
-                                        <li key={t}>{t}</li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-slate-100 flex flex-col items-center justify-center max-w-md mx-auto z-40">
-                                <div className="flex gap-3 w-full">
-                                    <button
-                                        onClick={() => setSetupStep(1)}
-                                        className="px-5 py-3.5 rounded-2xl font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
-                                    >
-                                        上一步
-                                    </button>
-                                    <button
-                                        onClick={handleStartTracking}
-                                        className="flex-1 py-3.5 rounded-2xl font-black text-white bg-indigo-600 shadow-lg shadow-indigo-200 hover:bg-indigo-700 active-scale btn-shine flex items-center justify-center gap-2"
-                                    >
-                                        開啟我的睡眠之旅
-                                        <Icon name="rocket" size={18} />
-                                    </button>
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-bold text-slate-800 px-1">選擇挑戰天數</h3>
+                                    <div className="flex gap-3">
+                                        {[
+                                            {v: 7, i: 'zap', label: '初階體會', colorName: 'emerald', activeClass: 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200', inactiveClass: 'bg-white border-emerald-100 text-emerald-600 hover:border-emerald-300'}, 
+                                            {v: 14, i: 'flame', label: '建立規律', colorName: 'amber', activeClass: 'bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-200', inactiveClass: 'bg-white border-amber-100 text-amber-600 hover:border-amber-300'}, 
+                                            {v: 21, i: 'crown', label: '內化習慣', colorName: 'rose', activeClass: 'bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-200', inactiveClass: 'bg-white border-rose-100 text-rose-600 hover:border-rose-300'}
+                                        ].map(d => {
+                                            const isSelected = planDuration === d.v;
+                                            return (
+                                                <button key={d.v} onClick={() => setPlanDuration(d.v)} className={`flex-1 py-4 px-2 rounded-2xl transition-all active-scale flex flex-col items-center justify-center gap-1 border-2 ${isSelected ? d.activeClass + ' -translate-y-2' : d.inactiveClass} `}>
+                                                    <Icon name={d.i} size={18} className={isSelected ? 'text-white' : ''} />
+                                                    <span className="text-2xl font-black leading-none">{d.v}天</span>
+                                                    <span className={`text-[10px] font-bold ${isSelected ? 'opacity-80' : 'opacity-60'}`}>{d.label}</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                                <Footer />
+
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-bold text-slate-800 px-1">開始日期</h3>
+                                    <div className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center justify-between shadow-sm focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
+                                        <div className="flex items-center gap-3">
+                                            <div className="bg-indigo-100 text-indigo-600 p-2 rounded-xl"><Icon name="calendar" size={18} /></div>
+                                            <span className="font-bold text-slate-700">選擇日期</span>
+                                        </div>
+                                        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-transparent font-bold text-indigo-600 focus:outline-none text-right cursor-pointer" />
+                                    </div>
+                                </div>
                             </div>
+
+                            <button onClick={handleStartTracking} className="btn-shine w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black py-5 rounded-3xl shadow-2xl shadow-indigo-200 active-scale transition-all flex items-center justify-center gap-3 text-lg">
+                                開啟我的重整之旅 <Icon name="arrow-right" size={24} />
+                            </button>
+                            <Footer />
                         </div>
                     )}
                 </div>
             );
 
             const TrackingView = () => {
-                const currentTheme = DURATION_THEMES[planDuration] || DURATION_THEMES[7];
+                const isFinished = currentDayNum > planDuration;
+                const todayDone = dailyLogs[todayStr] || [];
+                const endDay = new Date(startDate);
+                endDay.setDate(endDay.getDate() + planDuration - 1);
+                const endDateStr = endDay.toISOString().split('T')[0];
+                const activeTheme = activeRitual ? (TASK_THEMES[activeRitual.name] || { color: 'slate', icon: 'sparkles', bg: 'bg-slate-50', text: 'text-slate-600', ring: 'ring-slate-100' }) : null;
 
                 return (
-                    <div className="animate-page flex flex-col min-h-screen max-w-md mx-auto p-4 space-y-4">
-                        {/* 頂部標題與重置設定 */}
-                        <div className="flex items-center justify-between pt-2 px-1">
-                            <div>
-                                <h2 className="text-3xl font-black text-slate-800 tracking-tight">重整睡眠之旅</h2>
-                                <p className="text-xs font-bold text-slate-400">第 {stats.elapsedDays} / {planDuration} 天挑戰中</p>
+                    <div className="animate-page flex flex-col min-h-screen bg-[#f8fafc]">
+                        
+                        {/* 瀏覽器嵌入警告橫幅 */}
+                        {isIframe && (
+                            <div className="bg-amber-500 text-white px-6 py-3 flex items-center justify-between text-xs font-black gap-3 shadow-lg z-50">
+                                <div className="flex items-center gap-2">
+                                    <Icon name="alert-triangle" size={16} className="animate-shake" />
+                                    <span>預覽視窗限制了系統通知。請開新分頁以接收鬧鐘！</span>
+                                </div>
+                                <a 
+                                    href={window.location.href} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="bg-white text-amber-700 px-3 py-1.5 rounded-full active-scale flex-shrink-0 flex items-center gap-1"
+                                >
+                                    開新分頁 <Icon name="external-link" size={12} />
+                                </a>
                             </div>
-                            <button
-                                onClick={() => setShowResetConfirm(true)}
-                                className="p-2.5 rounded-2xl bg-slate-100 text-slate-500 hover:bg-slate-200 active-scale"
-                                title="重新設定計畫"
-                            >
-                                <Icon name="rotate-ccw" size={18} />
-                            </button>
-                        </div>
+                        )}
 
-                        {/* 習慣達成率 Hero 儀表板 */}
-                        <div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 rounded-3xl p-5 text-white shadow-xl shadow-indigo-200 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 -mr-6 -mt-6 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
-
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-2 bg-white/15 px-3 py-1 rounded-full backdrop-blur-md">
-                                    <Icon name="activity" size={14} className="text-emerald-300" />
-                                    <span className="text-xs font-bold tracking-wide text-indigo-100">睡眠習慣達成率</span>
+                        {/* 系統通知權限未授權提示 */}
+                        {!isIframe && notificationPermission !== 'granted' && (
+                            <div className="bg-indigo-50 border-b border-indigo-100 px-6 py-3 flex items-center justify-between text-xs font-bold text-indigo-900 gap-3">
+                                <div className="flex items-center gap-2">
+                                    <Icon name="bell-ring" size={16} className="text-indigo-600 animate-shake" />
+                                    <span>開啟通知，網頁縮小或在背景也能提醒任務！</span>
                                 </div>
                                 <button 
-                                    onClick={() => setShowStatsModal(true)}
-                                    className="text-xs font-bold bg-white text-indigo-900 px-3 py-1 rounded-full shadow-sm hover:bg-indigo-50 active-scale flex items-center gap-1"
+                                    onClick={requestPermission} 
+                                    className="bg-indigo-600 text-white px-3 py-1.5 rounded-full active-scale flex-shrink-0"
                                 >
-                                    <Icon name="bar-chart-2" size={13} />
-                                    詳細報表
+                                    立即開啟
                                 </button>
                             </div>
+                        )}
 
-                            <div className="grid grid-cols-2 gap-3 items-center">
-                                {/* 整體累積達成率 */}
-                                <div className="bg-white/10 p-3.5 rounded-2xl border border-white/10 backdrop-blur-sm">
-                                    <p className="text-[11px] font-medium text-indigo-200 mb-1">整體累積達成率</p>
-                                    <div className="flex items-baseline gap-1">
-                                        <span className="text-3xl font-black tracking-tight">{stats.overallRate}%</span>
+                        {/* 鬧鐘即時提醒彈窗 */}
+                        {triggeredAlarm && (
+                            <div className="fixed inset-0 z-[100] overlay-blur flex items-center justify-center p-6">
+                                <div className="bg-white w-full max-w-xs rounded-[2.5rem] p-8 text-center animate-pop shadow-2xl border-2 border-slate-100">
+                                    <div className={`w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center animate-shake ${currentTheme.bg} ${currentTheme.fill.replace('bg-', 'text-')}`}>
+                                        <Icon name="bell" size={40} />
                                     </div>
-                                    <div className="w-full bg-white/20 h-1.5 rounded-full mt-2 overflow-hidden">
-                                        <div 
-                                            className={`${currentTheme.progressFill} h-full rounded-full transition-all duration-700`} 
-                                            style={{ width: `${stats.overallRate}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-
-                                {/* 今日達成率 & Streak */}
-                                <div className="bg-white/10 p-3.5 rounded-2xl border border-white/10 backdrop-blur-sm space-y-1">
-                                    <p className="text-[11px] font-medium text-indigo-200">今日完成進度</p>
-                                    <div className="flex items-baseline justify-between">
-                                        <span className="text-2xl font-extrabold">{stats.todayCompletedCount}/{stats.totalSelectedCount}</span>
-                                        <span className="text-xs font-bold text-amber-300 bg-amber-400/20 px-2 py-0.5 rounded-md border border-amber-300/30">
-                                            {stats.todayRate}%
-                                        </span>
-                                    </div>
-                                    <p className="text-[10px] text-indigo-200 flex items-center gap-1 mt-1">
-                                        <Icon name="flame" size={12} className="text-orange-400 fill-orange-400" />
-                                        連續打卡: <span className="font-bold text-white">{stats.streak} 天</span>
-                                    </p>
+                                    <h2 className="text-slate-400 font-black text-xs tracking-widest uppercase mb-2">任務提醒</h2>
+                                    <h3 className="text-xl font-black text-slate-800 mb-8">{triggeredAlarm}</h3>
+                                    <button 
+                                        onClick={() => {
+                                            const taskInfo = CATEGORIES.flatMap(c => c.items).find(i => i.name === triggeredAlarm);
+                                            setAppMode('tracking');
+                                            setTriggeredAlarm(null);
+                                            if (taskInfo) {
+                                                setActiveRitual(taskInfo);
+                                            }
+                                        }}
+                                        className={`w-full py-4 rounded-2xl text-white font-black shadow-lg mb-3 active-scale ${currentTheme.fill}`}
+                                    >
+                                        現在就去做
+                                    </button>
+                                    <button onClick={() => setTriggeredAlarm(null)} className="text-slate-300 font-bold">稍後提醒</button>
                                 </div>
                             </div>
-                        </div>
+                        )}
 
-                        {/* 今日習慣打卡清單 */}
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between px-1">
-                                <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                                    <Icon name="calendar-check" size={18} className="text-indigo-600" />
-                                    今日挑戰習慣 ({formatDateDDMMYYYY(todayStr)})
-                                </h3>
-                                <span className="text-xs font-bold text-slate-400">
-                                    完成 {stats.todayCompletedCount} / {stats.totalSelectedCount}
-                                </span>
-                            </div>
-
-                            <div className="space-y-2.5">
-                                {Array.from(selectedTasks).map(taskName => {
-                                    const isDone = (dailyLogs[todayStr] || []).includes(taskName);
-                                    const alarmTime = taskAlarms[taskName];
-
-                                    return (
-                                        <div 
-                                            key={taskName}
-                                            className={`p-4 rounded-3xl border-2 transition-all active-scale flex items-center justify-between ${
-                                                isDone ? currentTheme.cardDone : 'bg-white border-slate-100 shadow-sm hover:border-slate-200'
-                                            }`}
-                                        >
-                                            <div className="flex items-center gap-3.5 flex-1 pr-2">
-                                                <button
-                                                    onClick={() => toggleTask(taskName)}
-                                                    className={`w-7 h-7 rounded-2xl border-2 flex items-center justify-center transition-all ${
-                                                        isDone ? currentTheme.btnDone : 'border-slate-300 bg-slate-50'
-                                                    }`}
-                                                >
-                                                    {isDone && <Icon name="check" size={16} />}
-                                                </button>
-                                                
-                                                <div className="flex-1" onClick={() => toggleTask(taskName)}>
-                                                    <p className={`text-sm font-bold ${isDone ? 'line-through text-slate-400' : 'text-slate-800'}`}>
-                                                        {taskName}
-                                                    </p>
-                                                    {alarmTime && (
-                                                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400 mt-0.5">
-                                                            <Icon name="clock" size={12} /> 提醒: {alarmTime}
-                                                        </span>
-                                                    )}
-                                                </div>
+                        {/* 離線漏接提醒彈窗 */}
+                        {missedTasks.length > 0 && !triggeredAlarm && (
+                            <div className="fixed inset-0 z-[95] overlay-blur flex items-center justify-center p-6">
+                                <div className="bg-white w-full max-w-xs rounded-[2.5rem] p-8 animate-pop shadow-2xl border-2 border-rose-100">
+                                    <div className="w-16 h-16 mx-auto mb-4 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center">
+                                        <Icon name="calendar-clock" size={32} />
+                                    </div>
+                                    <h3 className="text-xl font-black text-slate-800 mb-2 text-center">漏接任務提示</h3>
+                                    <p className="text-slate-400 text-xs font-bold text-center mb-6 leading-relaxed">離開網頁期間您遺漏了以下已設定提醒的任務：</p>
+                                    
+                                    <div className="max-h-36 overflow-y-auto no-scrollbar space-y-2 mb-6">
+                                        {missedTasks.map(t => (
+                                            <div key={t.name} className="bg-slate-50 border border-slate-100 p-3 rounded-xl flex justify-between items-center">
+                                                <span className="text-xs font-bold text-slate-700 truncate pr-2">{t.name}</span>
+                                                <span className="text-[10px] font-black bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full">{t.time}</span>
                                             </div>
+                                        ))}
+                                    </div>
 
-                                            {/* 鬧鐘設定按鈕 */}
-                                            <button
-                                                onClick={() => setAlarmSettingTask(taskName)}
-                                                className="p-2 rounded-xl bg-slate-100/80 text-slate-500 hover:bg-slate-200 text-xs font-bold flex items-center gap-1"
-                                                title="設定提醒時間"
-                                            >
-                                                <Icon name="bell" size={15} />
-                                            </button>
-                                        </div>
-                                    );
-                                })}
+                                    <div className="flex flex-col gap-2">
+                                        <button 
+                                            onClick={() => {
+                                                const firstMissed = CATEGORIES.flatMap(c => c.items).find(i => i.name === missedTasks[0].name);
+                                                if (firstMissed) {
+                                                    setActiveRitual(firstMissed);
+                                                }
+                                                setMissedTasks([]);
+                                            }}
+                                            className={`w-full py-4 rounded-xl text-white font-black active-scale ${currentTheme.fill}`}
+                                        >
+                                            現在補打卡 ({missedTasks.length} 個)
+                                        </button>
+                                        <button onClick={() => setMissedTasks([])} className="py-2 text-slate-400 font-bold">先忽略</button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        )}
 
-                        <Footer />
-                    </div>
-                );
-            };
+                        {/* 設定提醒時間彈窗 */}
+                        {alarmSettingTask && (
+                            <div className="fixed inset-0 z-[90] overlay-blur flex items-center justify-center p-6">
+                                <div className="bg-white w-full max-w-xs rounded-[2.5rem] p-8 animate-pop shadow-2xl">
+                                    <h3 className="text-xl font-black text-slate-800 mb-1 text-center">設定提醒時間</h3>
+                                    <p className="text-slate-400 text-[10px] font-bold text-center mb-6 leading-relaxed">{alarmSettingTask}</p>
+                                    
+                                    {notificationPermission !== 'granted' && (
+                                        <div onClick={requestPermission} className="mb-4 p-2.5 bg-amber-50 rounded-xl border border-amber-100 text-[10px] text-amber-700 font-bold flex items-center gap-1.5 cursor-pointer hover:bg-amber-100">
+                                            <Icon name="alert-triangle" size={12} className="flex-shrink-0" />
+                                            <span>權限未開啟。點擊此處允許權限。</span>
+                                        </div>
+                                    )}
 
-            const daysGrid = getCalendarDays(calYear, calMonth);
-            const todayIso = new Date().toISOString().split('T')[0];
+                                    <input 
+                                        type="time" 
+                                        defaultValue={taskAlarms[alarmSettingTask] || "08:00"}
+                                        id="timePicker"
+                                        className="w-full text-4xl font-black text-center py-4 bg-slate-50 rounded-2xl mb-4 text-indigo-600 focus:outline-none"
+                                    />
 
-            const changeMonth = (offset) => {
-                let newM = calMonth + offset;
-                let newY = calYear;
-                if (newM < 0) {
-                    newM = 11;
-                    newY -= 1;
-                } else if (newM > 11) {
-                    newM = 0;
-                    newY += 1;
-                }
-                setCalMonth(newM);
-                setCalYear(newY);
-            };
+                                    <div className="flex flex-col gap-2">
+                                        <button 
+                                            onClick={() => {
+                                                const timeVal = document.getElementById('timePicker').value;
+                                                setTaskAlarms({...taskAlarms, [alarmSettingTask]: timeVal});
+                                                setAlarmSettingTask(null);
+                                                requestPermission();
+                                            }}
+                                            className={`w-full py-4 rounded-xl text-white font-black active-scale ${currentTheme.fill}`}
+                                        >
+                                            儲存設定
+                                        </button>
+                                        
+                                        <button 
+                                            onClick={() => runFiveSecondsTest(alarmSettingTask)}
+                                            className="w-full py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl text-xs font-black active-scale flex items-center justify-center gap-1.5"
+                                        >
+                                            <Icon name="zap" size={14} /> 🚀 測試 5 秒後鬧鐘
+                                        </button>
 
-            return (
-                <div className="min-h-screen bg-slate-50 relative selection:bg-indigo-500 selection:text-white">
-                    {appMode === 'setup' ? <SetupView /> : <TrackingView />}
+                                        <button onClick={() => setAlarmSettingTask(null)} className="py-2 text-slate-400 font-bold text-sm">取消</button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
-                    {/* 📅 自訂互動式日曆選擇 Modal */}
-                    {showDatePickerModal && (
-                        <div className="fixed inset-0 z-50 overlay-blur flex items-center justify-center p-4 animate-pop">
-                            <div className="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-slate-100 space-y-4">
-                                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                                    <div className="flex items-center gap-2">
-                                        <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
-                                            <Icon name="calendar-days" size={20} />
+                        {/* 一項習慣打卡成功時彈出的可愛小鼓勵視窗 */}
+                        {showSingleEncouragement && (
+                            <div className="fixed inset-0 z-[120] overlay-blur flex items-center justify-center p-6">
+                                <div className="bg-white w-full max-sm:mx-4 max-w-sm rounded-[3rem] p-8 text-center animate-pop shadow-2xl border-4 border-indigo-100 relative overflow-hidden">
+                                    
+                                    <div className="w-40 h-40 mx-auto mb-6 bg-indigo-50/70 rounded-full flex items-center justify-center relative shadow-inner">
+                                        <div className="absolute inset-0 bg-indigo-100/30 rounded-full animate-ping opacity-75"></div>
+                                        {mascotType === 'cloud' ? (
+                                            <SleepingCloudSVG className="w-28 h-28 float-icon" />
+                                        ) : (
+                                            <GlowingStarSVG className="w-28 h-28 animate-celebrate" />
+                                        )}
+                                    </div>
+
+                                    <h3 className="text-2xl font-black text-indigo-950 mb-3">小成就達成！🎉</h3>
+                                    
+                                    <div className="bg-slate-50/80 px-4 py-4 rounded-2xl mb-6 border border-slate-100 shadow-inner">
+                                        <p className="text-slate-600 text-sm font-bold leading-relaxed">
+                                            「{currentQuote}」
+                                        </p>
+                                    </div>
+
+                                    <button 
+                                        onClick={() => setShowSingleEncouragement(false)}
+                                        className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl shadow-lg active-scale transition-all flex items-center justify-center gap-2"
+                                    >
+                                        收到鼓勵，繼續加油！ <Icon name="heart-handshake" size={18} />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 全數挑戰任務達成時彈出的慶祝大彈窗 (紙屑自大獎盃上方發放) */}
+                        {showSuccessToast && (
+                            <div className="fixed inset-0 z-[140] overlay-blur flex items-center justify-center p-6 overflow-hidden">
+                                <div className={`bg-white w-full max-sm:mx-4 max-w-sm rounded-[3.5rem] p-8 text-center shadow-2xl animate-pop border-4 relative ${currentTheme.border}`}>
+                                    
+                                    <div className="flex flex-col items-center justify-center mb-6 relative">
+                                        {/* 紙屑發射起點精準對齊獎盃上方 */}
+                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-2 h-2 pointer-events-none z-50">
+                                            {confettiArray.map(item => (
+                                                <div 
+                                                    key={item.id} 
+                                                    className={`confetti-burst ${item.shape}`}
+                                                    style={{
+                                                        '--tx': item.tx,
+                                                        '--ty': item.ty,
+                                                        '--rot': item.rot,
+                                                        animationDelay: item.delay,
+                                                        backgroundColor: item.color,
+                                                        width: item.size,
+                                                        height: item.size,
+                                                        left: '50%',
+                                                        top: '50%',
+                                                        marginLeft: `-${parseInt(item.size)/2}px`,
+                                                        marginTop: `-${parseInt(item.size)/2}px`,
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
+
+                                        <TrophySVG className="w-24 h-24 float-icon drop-shadow-[0_10px_20px_rgba(245,158,11,0.4)] mb-4" />
+                                        <h3 className="text-3xl font-black text-slate-900 mb-2">今天超棒的！</h3>
+                                        <h4 className="text-emerald-600 font-black text-sm tracking-widest">今日挑戰全數圓滿達成！</h4>
+                                    </div>
+
+                                    <button 
+                                        onClick={() => {
+                                            setShowSuccessToast(false);
+                                            setConfettiArray([]);
+                                        }}
+                                        className={`w-full py-4 text-white font-black rounded-2xl shadow-xl active-scale transition-all ${currentTheme.fill}`}
+                                    >
+                                        明天繼續保持！🌟
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 放鬆儀式引導詳情彈窗 */}
+                        {activeRitual && activeTheme && (
+                            <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-md p-4">
+                                <div className="bg-white w-full max-w-sm rounded-[3rem] p-8 animate-pop shadow-2xl relative overflow-hidden">
+                                    <div className="flex flex-col items-center text-center space-y-6 relative z-10">
+                                        <div className={`w-28 h-28 ${activeTheme.bg} ${activeTheme.text} rounded-[2.5rem] flex items-center justify-center float-icon shadow-inner ring-8 ${activeTheme.ring} relative overflow-hidden`}>
+                                            <div className="absolute inset-0 flex items-center justify-center opacity-10 rotate-12 scale-150">
+                                                <Icon name={activeTheme.icon} size={80} />
+                                            </div>
+                                            <Icon name={activeTheme.icon} size={52} className="relative z-10" />
                                         </div>
                                         <div>
-                                            <h3 className="text-base font-black text-slate-800">選擇開始日期</h3>
-                                            <p className="text-[11px] text-slate-400">目前選擇: {formatDateDDMMYYYY(startDate)}</p>
+                                            <h3 className="text-xl font-black text-slate-900 mb-4">{activeRitual.name}</h3>
+                                            <p className="text-slate-500 font-bold leading-relaxed px-4">
+                                                {activeRitual.hint}
+                                            </p>
+                                        </div>
+                                        <div className="w-full flex flex-col gap-3 pt-4">
+                                            <button 
+                                                onClick={confirmRitual}
+                                                className={`w-full text-white font-black py-5 rounded-2xl shadow-xl active-scale flex items-center justify-center gap-2 transition-colors ${currentTheme.fill}`}
+                                            >
+                                                完成挑戰 <Icon name="check-circle" size={22} />
+                                            </button>
+                                            <button onClick={() => { setActiveRitual(null); setAppMode('tracking'); }} className="w-full bg-slate-50 text-slate-400 font-bold py-3 rounded-2xl active-scale text-sm">
+                                                稍後再說
+                                            </button>
                                         </div>
                                     </div>
-                                    <button 
-                                        onClick={() => setShowDatePickerModal(false)} 
-                                        className="p-1.5 rounded-full text-slate-400 hover:bg-slate-100 active-scale"
-                                    >
-                                        <Icon name="x" size={20} />
-                                    </button>
-                                </div>
-
-                                {/* 快捷選擇按鈕 */}
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => {
-                                            const today = new Date().toISOString().split('T')[0];
-                                            setStartDate(today);
-                                            const d = new Date();
-                                            setCalYear(d.getFullYear());
-                                            setCalMonth(d.getMonth());
-                                        }}
-                                        className="flex-1 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-bold hover:bg-indigo-100 transition-colors"
-                                    >
-                                        今天
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            const tm = new Date();
-                                            tm.setDate(tm.getDate() + 1);
-                                            const tmIso = tm.toISOString().split('T')[0];
-                                            setStartDate(tmIso);
-                                            setCalYear(tm.getFullYear());
-                                            setCalMonth(tm.getMonth());
-                                        }}
-                                        className="flex-1 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-bold hover:bg-indigo-100 transition-colors"
-                                    >
-                                        明天
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            const dat = new Date();
-                                            dat.setDate(dat.getDate() + 2);
-                                            const datIso = dat.toISOString().split('T')[0];
-                                            setStartDate(datIso);
-                                            setCalYear(dat.getFullYear());
-                                            setCalMonth(dat.getMonth());
-                                        }}
-                                        className="flex-1 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-bold hover:bg-indigo-100 transition-colors"
-                                    >
-                                        後天
-                                    </button>
-                                </div>
-
-                                {/* 年月切換 Header */}
-                                <div className="flex items-center justify-between px-2 py-1 bg-slate-50 rounded-2xl">
-                                    <button 
-                                        onClick={() => changeMonth(-1)} 
-                                        className="p-2 rounded-xl text-slate-600 hover:bg-slate-200 active-scale"
-                                    >
-                                        <Icon name="chevron-left" size={18} />
-                                    </button>
-                                    <span className="text-sm font-black text-slate-800">
-                                        {calYear} 年 {calMonth + 1} 月
-                                    </span>
-                                    <button 
-                                        onClick={() => changeMonth(1)} 
-                                        className="p-2 rounded-xl text-slate-600 hover:bg-slate-200 active-scale"
-                                    >
-                                        <Icon name="chevron-right" size={18} />
-                                    </button>
-                                </div>
-
-                                {/* 日曆星期標頭 */}
-                                <div className="grid grid-cols-7 text-center text-xs font-bold text-slate-400 pb-1">
-                                    <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
-                                </div>
-
-                                {/* 日曆天數 Grid */}
-                                <div className="grid grid-cols-7 gap-1 text-center">
-                                    {daysGrid.map((item, idx) => {
-                                        const isSelected = item.dateStr === startDate;
-                                        const isToday = item.dateStr === todayIso;
-
-                                        let btnStyle = "text-slate-700 hover:bg-slate-100";
-                                        if (!item.isCurrentMonth) btnStyle = "text-slate-300";
-                                        if (isToday && !isSelected) btnStyle += " ring-2 ring-indigo-300 font-extrabold";
-                                        if (isSelected) btnStyle = "bg-indigo-600 text-white font-black shadow-md shadow-indigo-200";
-
-                                        return (
-                                            <button
-                                                key={idx}
-                                                onClick={() => setStartDate(item.dateStr)}
-                                                className={`h-9 w-full rounded-xl text-xs font-bold flex items-center justify-center transition-all active-scale ${btnStyle}`}
-                                            >
-                                                {item.day}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-
-                                {/* 底部確定按鈕 */}
-                                <div className="pt-2 border-t border-slate-100 flex items-center justify-center">
-                                    <button
-                                        onClick={() => setShowDatePickerModal(false)}
-                                        className="w-full py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-md shadow-indigo-100 hover:bg-indigo-700 active-scale"
-                                    >
-                                        確定
-                                    </button>
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    {/* ✨ 習慣達成率詳細統計報表彈窗 */}
-                    {showStatsModal && (
-                        <div className="fixed inset-0 z-50 overlay-blur flex items-center justify-center p-4 animate-pop">
-                            <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 space-y-5 max-h-[90vh] overflow-y-auto no-scrollbar">
-                                <div className="flex items-center justify-between border-b pb-3">
-                                    <div className="flex items-center gap-2">
-                                        <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
-                                            <Icon name="bar-chart-2" size={20} />
-                                        </div>
-                                        <h3 className="text-lg font-black text-slate-800">習慣達成率詳細報表</h3>
+                        {/* 客製確認重置彈窗 */}
+                        {showResetConfirm && (
+                            <div className="fixed inset-0 z-[110] overlay-blur flex items-center justify-center p-6">
+                                <div className="bg-white w-full max-w-xs rounded-[2.5rem] p-8 text-center animate-pop shadow-2xl border border-red-100">
+                                    <div className="w-16 h-16 mx-auto mb-4 bg-red-50 text-red-500 rounded-full flex items-center justify-center">
+                                        <Icon name="alert-triangle" size={32} />
                                     </div>
-                                    <button onClick={() => setShowStatsModal(false)} className="p-1 rounded-full text-slate-400 hover:bg-slate-100">
-                                        <Icon name="x" size={20} />
-                                    </button>
+                                    <h3 className="text-xl font-black text-slate-800 mb-2">確定要重新開始？</h3>
+                                    <p className="text-slate-400 text-xs font-bold mb-6">這將會清除您目前記錄的所有天數、已選習慣與定時提醒。</p>
+                                    <div className="flex flex-col gap-2">
+                                        <button 
+                                            onClick={executeReset} 
+                                            className="w-full py-4 rounded-xl bg-red-500 hover:bg-red-600 text-white font-black active-scale shadow-lg shadow-red-100"
+                                        >
+                                            清除並重置
+                                        </button>
+                                        <button 
+                                            onClick={() => setShowResetConfirm(false)} 
+                                            className="py-2 text-slate-400 font-bold"
+                                        >
+                                            返回
+                                        </button>
+                                    </div>
                                 </div>
+                            </div>
+                        )}
 
-                                {/* 頂部總結卡片 */}
-                                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 text-center space-y-2">
-                                    <p className="text-xs font-bold text-slate-500">挑戰期間累積總達成率</p>
-                                    <div className="text-4xl font-black text-indigo-600 tracking-tight">{stats.overallRate}%</div>
-                                    <p className="text-xs text-slate-500 font-medium">
-                                        已完成 <span className="font-bold text-slate-800">{stats.totalActualCompletions}</span> 次 / 應完成 {stats.totalPossibleCompletions} 次
-                                    </p>
+                        {/* 頂部進度卡片區塊 */}
+                        <div className="bg-white px-6 pt-12 pb-8 rounded-b-[3rem] shadow-sm border-b border-slate-100 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-8 opacity-5"><Icon name="cloud-moon" size={120} /></div>
+                            <div className="flex justify-between items-center mb-6">
+                                <button onClick={() => setAppMode('setup')} className="p-2 hover:bg-slate-50 rounded-full text-slate-400"><Icon name="settings" size={20} /></button>
+                                <div className="text-center">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{startDate} 至 {endDateStr}</p>
+                                    <h2 className="text-xl font-black text-slate-900">{currentDayNum < 1 ? "尚未開始" : (isFinished ? "旅程圓滿達成！" : `第 ${currentDayNum} 天 / 共 ${planDuration} 天`)}</h2>
                                 </div>
+                                <button onClick={() => setShowResetConfirm(true)} className="p-2 hover:bg-red-50 rounded-full text-red-300"><Icon name="refresh-ccw" size={18} /></button>
+                            </div>
+                            <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden mb-2">
+                                <div className="progress-bar h-full rounded-full transition-all duration-500" style={{ width: `${currentDayNum < 1 ? 0 : progressPercent}%`, background: currentTheme.gradient }}></div>
+                            </div>
+                            <div className="flex justify-between text-[10px] font-bold text-slate-400"><span>起點</span><span>{currentDayNum < 1 ? 0 : Math.round(progressPercent)}%</span><span>終點</span></div>
+                        </div>
 
-                                {/* 單項習慣達成率細節 */}
-                                <div className="space-y-3">
-                                    <h4 className="text-xs font-extrabold text-slate-400 tracking-wider uppercase">各項目打卡達成率</h4>
-                                    <div className="space-y-3">
-                                        {Array.from(selectedTasks).map(task => {
-                                            const count = stats.perTaskStats[task] || 0;
-                                            const rate = stats.elapsedDays > 0 ? Math.round((count / stats.elapsedDays) * 100) : 0;
-                                            const activeTheme = DURATION_THEMES[planDuration] || DURATION_THEMES[7];
-
+                        {/* 打卡計畫列表 */}
+                        <div className="flex-1 p-6 overflow-y-auto no-scrollbar pb-24">
+                            {currentDayNum < 1 ? (
+                                <div className="text-center py-10 space-y-6">
+                                    <div className={`w-24 h-24 ${currentTheme.bg} rounded-full flex items-center justify-center mx-auto float-icon`}><Icon name="calendar-clock" className={currentTheme.fill.replace('bg-', 'text-')} size={48} /></div>
+                                    <div><h3 className="text-2xl font-black text-slate-900">期待旅程開始！</h3><p className="text-slate-500 mt-2 px-6">你的挑戰將於 <b>{startDate}</b> 正式開啟。</p></div>
+                                    <button onClick={() => {setAppMode('setup'); setSetupStep(2);}} className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black shadow-xl active-scale">更改開始日期</button>
+                                    <Footer />
+                                </div>
+                            ) : isFinished ? (
+                                <div className="text-center py-10 flex flex-col items-center justify-center">
+                                    {/* 結束成果頁：高質感純 SVG 大獎盃 */}
+                                    <TrophySVG className="float-icon drop-shadow-[0_10px_20px_rgba(245,158,11,0.4)] mb-6" />
+                                    <div className="text-center">
+                                        <h3 className="text-2xl font-black text-slate-900">太棒了，完成挑戰！</h3>
+                                        <p className="text-slate-500 mt-2 px-6">你已經成功掌握了自己的睡眠節奏。</p>
+                                    </div>
+                                    <button onClick={() => setShowResetConfirm(true)} className="mt-8 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black shadow-xl active-scale">展開新旅程</button>
+                                    <Footer />
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    <div className="space-y-4">
+                                        <h3 className="text-lg font-black text-slate-800 flex items-center gap-2"><Icon name="list-checks" className={currentTheme.fill.replace('bg-', 'text-')} />今日挑戰任務</h3>
+                                        {Array.from(selectedTasks).map(taskName => {
+                                            const done = todayDone.includes(taskName);
+                                            const theme = TASK_THEMES[taskName] || { icon: 'circle' };
+                                            const alarmTime = taskAlarms[taskName];
                                             return (
-                                                <div key={task} className="space-y-1">
-                                                    <div className="flex justify-between text-xs font-bold">
-                                                        <span className="text-slate-700 truncate max-w-[200px]">{task}</span>
-                                                        <span className={activeTheme.textAccent}>{count}/{stats.elapsedDays} 天 ({rate}%)</span>
+                                                <div key={taskName} className={`p-5 rounded-3xl flex items-center gap-4 transition-all border-2 ${done ? `${currentTheme.bg} ${currentTheme.border}` : 'bg-white border-white shadow-sm hover:border-slate-100'}`}>
+                                                    <div 
+                                                        onClick={() => toggleTask(taskName)}
+                                                        className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all flex-shrink-0 cursor-pointer active-scale ${done ? `${currentTheme.fill} text-white shadow-lg` : 'bg-slate-50 text-slate-300 border border-slate-100'}`}
+                                                    >
+                                                        <Icon name={done ? "check" : theme.icon} size={24} />
                                                     </div>
-                                                    <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                                                        <div 
-                                                            className={`${activeTheme.barFill} h-full rounded-full transition-all duration-500`}
-                                                            style={{ width: `${rate}%` }}
-                                                        ></div>
+                                                    
+                                                    <div className="flex-1 cursor-pointer">
+                                                        <span onClick={() => toggleTask(taskName)} className={`text-sm font-bold block leading-tight ${done ? `${currentTheme.text}/40 line-through` : 'text-slate-700'}`}>{taskName}</span>
+                                                        {alarmTime && !done && (
+                                                            <span 
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setAlarmSettingTask(taskName);
+                                                                }}
+                                                                className="text-[10px] font-black text-indigo-400 flex items-center gap-1 mt-1 hover:text-indigo-600 transition-colors cursor-pointer"
+                                                                title="點擊修改時間"
+                                                            >
+                                                                <Icon name="bell" size={10} /> {alarmTime} 提醒 (點擊修改)
+                                                            </span>
+                                                        )}
                                                     </div>
+                                                    
+                                                    {!done && (
+                                                        <div className="flex items-center">
+                                                            {alarmTime ? (
+                                                                <button 
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleOneClickCancelAlarm(taskName);
+                                                                    }}
+                                                                    className="p-2 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-all active-scale"
+                                                                    title="一鍵取消鬧鐘提醒"
+                                                                >
+                                                                    <Icon name="bell-off" size={20} />
+                                                                </button>
+                                                            ) : (
+                                                                <button 
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        setAlarmSettingTask(taskName);
+                                                                    }}
+                                                                    className="p-2 rounded-xl text-slate-200 hover:text-slate-400 transition-all active-scale"
+                                                                    title="設定鬧鐘"
+                                                                >
+                                                                    <Icon name="clock" size={20} />
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             );
                                         })}
                                     </div>
+                                    <div className="grid grid-cols-7 gap-2 pt-4">
+                                        {Array.from({length: Math.min(planDuration, 21)}).map((_, i) => {
+                                            const dNum = i + 1;
+                                            const isPast = dNum < currentDayNum;
+                                            const isToday = dNum === currentDayNum;
+                                            return <div key={i} className={`h-8 rounded-lg flex items-center justify-center text-[10px] font-black ${isPast ? `${currentTheme.bg} ${currentTheme.fill.replace('bg-', 'text-')}` : isToday ? `${currentTheme.fill} text-white ring-4 ${currentTheme.bg}` : 'bg-slate-200 text-slate-400'}`}>{dNum}</div>;
+                                        })}
+                                    </div>
+                                    <Footer />
                                 </div>
-
-                                <button
-                                    onClick={() => setShowStatsModal(false)}
-                                    className="w-full py-3 rounded-2xl bg-indigo-600 text-white font-bold active-scale"
-                                >
-                                    返回今日任務
-                                </button>
-                            </div>
+                            )}
                         </div>
-                    )}
+                    </div>
+                );
+            };
 
-                    {/* 打卡儀式確認 Modal */}
-                    {activeRitual && (
-                        <div className="fixed inset-0 z-50 overlay-blur flex items-center justify-center p-4 animate-pop">
-                            <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 space-y-4 text-center">
-                                <div className="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
-                                    <Icon name="sparkles" size={32} />
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-black text-slate-800">{activeRitual.name}</h3>
-                                    <p className="text-xs text-slate-500 mt-1">{activeRitual.hint}</p>
-                                </div>
-                                <div className="p-3 bg-slate-50 rounded-2xl text-xs font-semibold text-slate-600">
-                                    準備好完成這項優質習慣了嗎？
-                                </div>
-                                <div className="flex gap-2">
-                                    <button 
-                                        onClick={() => setActiveRitual(null)}
-                                        className="flex-1 py-3 rounded-2xl font-bold bg-slate-100 text-slate-600"
-                                    >
-                                        取消
-                                    </button>
-                                    <button 
-                                        onClick={confirmRitual}
-                                        className="flex-1 py-3 rounded-2xl font-black text-white bg-indigo-600 shadow-md active-scale"
-                                    >
-                                        確認完成
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* 單項完成鼓勵 Toast */}
-                    {showSingleEncouragement && (
-                        <div className="fixed inset-0 z-50 overlay-blur flex items-center justify-center p-4 animate-pop">
-                            <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
-                                {mascotType === 'cloud' ? <SleepingCloudSVG className="mx-auto" /> : <GlowingStarSVG className="mx-auto" />}
-                                <h3 className="text-xl font-black text-slate-800">你好叻! 請繼續下一項目標習慣。</h3>
-                                <button 
-                                    onClick={() => setShowSingleEncouragement(false)}
-                                    className="w-full py-3 rounded-2xl bg-indigo-600 text-white font-bold active-scale"
-                                >
-                                    繼續保持
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* 全日任務達成大慶祝 Modal */}
-                    {showSuccessToast && (
-                        <div className="fixed inset-0 z-50 overlay-blur flex items-center justify-center p-4 animate-pop">
-                            {confettiArray.map(c => (
-                                <div 
-                                    key={c.id} 
-                                    className={`confetti-burst ${c.shape}`}
-                                    style={{
-                                        '--tx': c.tx, '--ty': c.ty, '--rot': c.rot,
-                                        backgroundColor: c.color, width: c.size, height: c.size,
-                                        left: '50%', top: '50%', animationDelay: c.delay
-                                    }}
-                                />
-                            ))}
-                            <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4 relative z-10">
-                                <TrophySVG className="mx-auto" />
-                                <h3 className="text-2xl font-black text-slate-800">所有目標習慣已經完成!</h3>
-                                <button 
-                                    onClick={() => setShowSuccessToast(false)}
-                                    className="w-full py-3.5 rounded-2xl bg-emerald-500 text-white font-black shadow-lg shadow-emerald-200 active-scale"
-                                >
-                                    收下獎盃，明天再見!
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* 鬧鐘時間設定 Modal */}
-                    {alarmSettingTask && (
-                        <div className="fixed inset-0 z-50 overlay-blur flex items-center justify-center p-4 animate-pop">
-                            <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 space-y-4">
-                                <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                                    <Icon name="bell" size={18} className="text-indigo-600" />
-                                    設定「{alarmSettingTask}」提醒時間
-                                </h3>
-                                <input 
-                                    type="time" 
-                                    value={taskAlarms[alarmSettingTask] || "08:00"}
-                                    onChange={(e) => setTaskAlarms({ ...taskAlarms, [alarmSettingTask]: e.target.value })}
-                                    className="w-full p-3 rounded-2xl border-2 border-slate-200 text-center font-black text-xl text-slate-800 focus:border-indigo-600 focus:outline-none"
-                                />
-                                <div className="flex gap-2">
-                                    <button 
-                                        onClick={() => setAlarmSettingTask(null)}
-                                        className="flex-1 py-3 rounded-2xl font-bold bg-slate-100 text-slate-600"
-                                    >
-                                        完成
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* 重新設定計畫確認 Modal */}
-                    {showResetConfirm && (
-                        <div className="fixed inset-0 z-50 overlay-blur flex items-center justify-center p-4 animate-pop">
-                            <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 space-y-4 text-center">
-                                <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
-                                    <Icon name="alert-triangle" size={24} />
-                                </div>
-                                <h3 className="text-lg font-bold text-slate-800">重新開始睡眠挑戰？</h3>
-                                <p className="text-xs text-slate-500">這將會清除目前的挑戰天數與打卡紀錄，並重置為最初設定狀態。</p>
-                                <div className="flex gap-2">
-                                    <button 
-                                        onClick={() => setShowResetConfirm(false)}
-                                        className="flex-1 py-3 rounded-2xl font-bold bg-slate-100 text-slate-600"
-                                    >
-                                        取消
-                                    </button>
-                                    <button 
-                                        onClick={executeReset}
-                                        className="flex-1 py-3 rounded-2xl font-bold text-white bg-rose-500 active-scale"
-                                    >
-                                        確認重置
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+            return (
+                <div className="max-w-md mx-auto bg-white min-h-screen shadow-2xl overflow-hidden relative">
+                    {appMode === 'setup' ? <SetupView /> : <TrackingView />}
                 </div>
             );
         }
